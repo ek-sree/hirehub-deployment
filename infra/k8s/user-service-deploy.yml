@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: sreeharisree/hirehub_user_service:latest
+        ports:
+        - containerPort: 50051
+        env:
+        - name: PORT
+          value: "3000"
+        - name: USER_DB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: USER_DB_URI
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: JWT_SECRET_KEY
+        - name: RABBITmq_url
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: RABBITMQ_URL
+        - name: GOOGLE_CLIENT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: GOOGLE_CLIENT_ID
+        - name: GOOGLE_CLIENT_SECRET
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: GOOGLE_CLIENT_SECRET
+        - name: BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: BUCKET_NAME
+        - name: BUCKET_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: BUCKET_REGION
+        - name: BUCKET_ACCESS_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: BUCKET_ACCESS_KEY
+        - name: BUCKET_ACCESS_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: BUCKET_ACCESS_PASSWORD
+        - name: EMAIL_NODEMAILER
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: EMAIL_NODEMAILER
+        - name: PASSWORD_NODEMAILER
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: PASSWORD_NODEMAILER
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  type: ClusterIP
+  selector:
+    app: user-service
+  ports:
+  - protocol: TCP
+    port: 50051
+    targetPort: 50051

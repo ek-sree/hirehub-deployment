@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recruiter-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recruiter-service
+  template:
+    metadata:
+      labels:
+        app: recruiter-service
+    spec:
+      containers:
+      - name: recruiter-service
+        image: sreeharisree/hirehub_recruiter_service:latest
+        ports:
+        - containerPort: 50052
+        env:
+        - name: PORT
+          value: "3001"
+        - name: RECRUITER_DB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: RECRUITER_DB_URI
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: JWT_SECRET_KEY
+        - name: RABBITmq_url
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: RABBITMQ_URL
+        - name: EMAIL_NODEMAILER
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: EMAIL_NODEMAILER
+        - name: PASSWORD_NODEMAILER
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: PASSWORD_NODEMAILER
+        - name: BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: BUCKET_NAME
+        - name: BUCKET_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: BUCKET_REGION
+        - name: BUCKET_ACCESS_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: BUCKET_ACCESS_KEY
+        - name: BUCKET_ACCESS_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: BUCKET_ACCESS_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recruiter-service
+spec:
+  type: ClusterIP
+  selector:
+    app: recruiter-service
+  ports:
+  - protocol: TCP
+    port: 50052
+    targetPort: 50052

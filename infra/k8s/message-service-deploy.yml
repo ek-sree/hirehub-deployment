@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: message-service
+  template:
+    metadata:
+      labels:
+        app: message-service
+    spec:
+      containers:
+        - name: message-service
+          image: sreeharisree/hirehub_message_service:latest
+          ports:
+            - containerPort: 3005
+          env:
+            - name: PORT
+              value: "3005"
+            - name: MESSAGE_DB_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: hirehub-config
+                  key: MESSAGE_DB_URI
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: hirehub-config
+                  key: JWT_SECRET_KEY
+            - name: RABBITmq_url
+              valueFrom:
+                configMapKeyRef:
+                  name: hirehub-config
+                  key: RABBITMQ_URL
+            - name: BUCKET_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: hirehub-config
+                  key: BUCKET_NAME
+            - name: BUCKET_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: hirehub-config
+                  key: BUCKET_REGION
+            - name: BUCKET_ACCESS_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: hirehub-config
+                  key: BUCKET_ACCESS_KEY
+            - name: BUCKET_ACCESS_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: hirehub-config
+                  key: BUCKET_ACCESS_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: message-service
+spec:
+  type: ClusterIP
+  selector:
+    app: message-service
+  ports:
+    - protocol: TCP
+      port: 3005
+      targetPort: 3005

@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: post-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: post-service
+  template:
+    metadata:
+      labels:
+        app: post-service
+    spec:
+      containers:
+      - name: post-service
+        image: sreeharisree/hirehub_post_service:latest
+        ports:
+        - containerPort: 3004
+        env:
+        - name: PORT
+          value: "3004"
+        - name: POST_DB_URI
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: POST_DB_URI
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: JWT_SECRET_KEY
+        - name: RABBITmq_url
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: RABBITMQ_URL
+        - name: BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: BUCKET_NAME
+        - name: BUCKET_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: BUCKET_REGION
+        - name: BUCKET_ACCESS_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: BUCKET_ACCESS_KEY
+        - name: BUCKET_ACCESS_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: hirehub-config
+              key: BUCKET_ACCESS_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: post-service
+spec:
+  type: ClusterIP
+  selector:
+    app: post-service
+  ports:
+  - protocol: TCP
+    port: 3004
+    targetPort: 3004
